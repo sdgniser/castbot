@@ -20,7 +20,6 @@ async def on_ready():
     print(f"{bot.user.name} is ready to jam now.")
 
 
-# TODO: Delete the invocation message
 @bot.command(name="announce", aliases=['a', '<'])
 @commands.has_role("admin")
 async def announce_(ctx):
@@ -48,6 +47,8 @@ async def announce_(ctx):
             "Also available on Apple Podcast (Search the app)\n\n",
             "_You can also listen to episodes via this bot. Type `?help` to learn more._"
         ]
+
+        # embed.set_thumbnail(url="attachment://castbot.png") # Replace with promo image
 
         embed.add_field(name="Podcast Links:", value=f"{''.join(x for x in links_final)}", inline=False)
         embed.add_field(name="\u200b", value="\u200b", inline=False)
@@ -201,8 +202,6 @@ async def help(ctx):
         description="CastBot announces new NiSERCast episodes and allows server members to play episodes within this server.\n\n**Bot Pefix**: `?`\n\n**List of Commands:**",
         colour=discord.Colour.teal(),
     )
-
-    # embed.set_thumbnail(url="attachment://castbot.png")
 
     embed.add_field(name="`?announce`", value="[**Admin only**] Puts a new episode announcement message in the current channel.", inline=True)
     embed.add_field(name="aliases", value="`?a`, `?<`", inline=True)

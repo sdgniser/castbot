@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "castbot"
 version = "0.1.0"
-description = "This is CastBot^ - a bot that announces new NiSERCast episodes in our Discord server and allows all members to listen to the episodes within the Discord server."
+description = "This is CastBot - a bot that announces new NiSERCast episodes in our Discord server and allows all members to listen to the episodes within the Discord server."
 authors = ["JeS24"]
 
 [tool.poetry.dependencies]
