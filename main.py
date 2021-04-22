@@ -80,6 +80,7 @@ async def play_(ctx, *, podcast=1):
 
     podcast: int
         Episode number
+        Defaults to ``1`` (Episode 1)
 
     """
     global CURRENT
@@ -106,20 +107,14 @@ async def play_(ctx, *, podcast=1):
         voice = ctx.channel.guild.voice_client
 
         # Player loop to skip / change episode
-        if voice and voice.is_playing():
+        if voice:
             await voice.disconnect()
-            voice = await voice_channel.connect()
-            voice.play(discord.FFmpegPCMAudio(source=source))
-            voice.is_playing()
-            CURRENT = podcast
-            await ctx.send(f"`Now playing NiSERCast Episode {podcast} requested by {author}`")
 
-        if voice is None:
-            voice = await voice_channel.connect()
-            voice.play(discord.FFmpegPCMAudio(source=source))
-            voice.is_playing()
-            CURRENT = podcast
-            await ctx.send(f"`Now playing NiSERCast Episode {podcast} requested by {author}`")
+        voice = await voice_channel.connect()
+        voice.play(discord.FFmpegPCMAudio(source=source))
+        voice.is_playing()
+        CURRENT = podcast
+        await ctx.send(f"`Now playing NiSERCast Episode {podcast} requested by {author}`")
 
     else:
         await ctx.channel.send(content="_You are not connected to a voice channel. Please join a voice channel before invoking this command._")
