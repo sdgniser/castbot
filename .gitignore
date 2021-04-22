@@ -1,6 +1,7 @@
 # ENV
 .env
 .replit
+todo.txt
 
 __pycache__/
 poetry.lock

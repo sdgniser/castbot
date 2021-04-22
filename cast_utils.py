@@ -10,29 +10,31 @@ import random
 from bs4 import BeautifulSoup
 
 
-def get_info(podcast=0):
+def get_info(podcast=-1):
     """
     Reads the RSS feed and formats it as a Discord message
 
     podcast: int
-        Episode number (defaults to ``0`` / latest)
+        Episode number (defaults to ``-1`` / latest)
 
     """
     feed = feedparser.parse("https://nisercast.gitlab.io/rss.xml")
     # Always in last-in order
     pods = feed["entries"]
+    pods.reverse()
 
     try:
         pod = pods[podcast]
     except IndexError:
         return None
 
+    pod_num = len(pods)
     pod_title = pod.title
     pod_published = pod.published
     pod_longdesc = BeautifulSoup(pod.summary, "html.parser").get_text()
     pod_shortdesc = re.search('(.+?)Episode Notes:', pod_longdesc).group(1)
 
-    return pod_title, pod_published, pod_shortdesc
+    return pod_num, pod_title, pod_published, pod_shortdesc
 
 
 def get_links():

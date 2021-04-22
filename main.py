@@ -20,6 +20,16 @@ async def on_ready():
     print(f"{bot.user.name} is ready to jam now.")
 
 
+# Handling wrong commands & missing permissions
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, discord.ext.commands.errors.CommandNotFound):
+        await ctx.send("_I do not understand that command! Try `?help` to get a list of commands._", delete_after=120)
+
+    if isinstance(error, commands.MissingPermissions):
+        await ctx.send("`You are not an admin!`", delete_after=120)
+
+
 @bot.command(name="announce", aliases=['a', '<'])
 @commands.has_role("admin")
 async def announce_(ctx):
@@ -30,10 +40,11 @@ async def announce_(ctx):
     await ctx.trigger_typing()
 
     if get_info():
-        pod_title, pod_published, pod_shortdesc = get_info()
+        pod_num, pod_title, pod_published, pod_shortdesc = get_info()
 
         # Preparing embed
-        file = discord.File('./castbot.png')
+        file = discord.File("./castbot.png")
+        promo_url = rf"https://gitlab.com/nisercast/nisercast.gitlab.io/-/raw/master/assets/episodes/posters/{str(pod_num - 1).zfill(3)}.png"
         embed = discord.Embed(
             title=pod_title,
             description=f"_Publication Timestamp: {pod_published}_\n\n{pod_shortdesc}\n\n\u200b",
@@ -44,11 +55,11 @@ async def announce_(ctx):
         links_final = [
             f"[Google Podcast]({links[0]})\n",
             f"[Spotify Podcast]({links[1]})\n",
-            "Also available on Apple Podcast (Search the app)\n\n",
+            "Also available on **Apple Podcast** (Search the app)\n\n",
             "_You can also listen to episodes via this bot. Type `?help` to learn more._"
         ]
 
-        # embed.set_thumbnail(url="attachment://castbot.png") # Replace with promo image
+        embed.set_image(url=promo_url) # Replace with promo image - ????
 
         embed.add_field(name="Podcast Links:", value=f"{''.join(x for x in links_final)}", inline=False)
         embed.add_field(name="\u200b", value="\u200b", inline=False)
@@ -62,12 +73,6 @@ async def announce_(ctx):
         return await ctx.channel.send("`Podcast not found!`", delete_after=120)
 
 
-# @announce_.error
-# async def clear_error(ctx, error):
-#     if isinstance(error, commands.MissingPermissions):
-#         await ctx.send("`You are not an admin!`", delete_after=120)
-
-
 @bot.command(name="play", aliases=['p'])
 async def play_(ctx, *, podcast=1):
     """
@@ -79,7 +84,7 @@ async def play_(ctx, *, podcast=1):
     """
     global CURRENT
 
-    # Discord limiation: cannot handle typecheck here
+    # Discord limiation: cannot typecheck here
     if podcast == CURRENT:
         return await ctx.send(f"`Episode {podcast} is already being played! Try ?r to resume an episode.`", delete_after=60)
 
@@ -94,9 +99,21 @@ async def play_(ctx, *, podcast=1):
         return await ctx.send(f"`Episode {podcast} either does not exist or GitLab is experiencing issues at this time!`", delete_after=120)
 
     author = ctx.author
+
+
     if hasattr(author, "voice") and author.voice and author.voice.channel:
         voice_channel = author.voice.channel
         voice = ctx.channel.guild.voice_client
+
+        # Player loop to skip / change episode
+        if voice and voice.is_playing():
+            await voice.disconnect()
+            voice = await voice_channel.connect()
+            voice.play(discord.FFmpegPCMAudio(source=source))
+            voice.is_playing()
+            CURRENT = podcast
+            await ctx.send(f"`Now playing NiSERCast Episode {podcast} requested by {author}`")
+
         if voice is None:
             voice = await voice_channel.connect()
             voice.play(discord.FFmpegPCMAudio(source=source))
@@ -169,11 +186,11 @@ async def info_(ctx):
     """
     global CURRENT
 
-    if CURRENT:
-        pod_title, pod_published, pod_shortdesc = get_info()
+    if CURRENT is not None:
+        pod_num, pod_title, pod_published, pod_shortdesc = get_info(CURRENT)
 
         # Preparing embed
-        file = discord.File('./castbot.png')
+        file = discord.File("./castbot.png")
         embed = discord.Embed(
             title=pod_title,
             description=f"_Publication Timestamp: {pod_published}_\n\n{pod_shortdesc}",
@@ -196,7 +213,7 @@ async def help(ctx):
     Shows help message and list of commands
 
     """
-    file = discord.File('./castbot.png')
+    file = discord.File("./castbot.png")
     embed = discord.Embed(
         title="List of commands for CastBot",
         description="CastBot announces new NiSERCast episodes and allows server members to play episodes within this server.\n\n**Bot Pefix**: `?`\n\n**List of Commands:**",
