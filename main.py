@@ -59,14 +59,14 @@ async def announce_(ctx):
             "_You can also listen to episodes via this bot. Type `?help` to learn more._"
         ]
 
-        embed.set_image(url=promo_url) # Replace with promo image - ????
+        embed.set_image(url=promo_url)
 
         embed.add_field(name="Podcast Links:", value=f"{''.join(x for x in links_final)}", inline=False)
         embed.add_field(name="\u200b", value="\u200b", inline=False)
 
         embed.set_footer(text="Custom Podcast Bot for NiSERCast Discord Server | Fork me on GitHub (https://github.com/sdgniser/castbot)", icon_url="attachment://castbot.png")
 
-        await ctx.channel.send(content="@everyone", file=file, embed=embed)  # Does @everyone work ????
+        await ctx.channel.send(content="@everyone", file=file, embed=embed)
         await ctx.message.delete()
     
     else:
@@ -203,7 +203,7 @@ async def info_(ctx):
 
 
 @bot.command(name="help", help="Shows help message and list of commands")
-async def help(ctx):
+async def help_(ctx):
     """
     Shows help message and list of commands
 
@@ -218,7 +218,7 @@ async def help(ctx):
     embed.add_field(name="`?announce`", value="[**Admin only**] Puts a new episode announcement message in the current channel.", inline=True)
     embed.add_field(name="aliases", value="`?a`, `?<`", inline=True)
     embed.add_field(name="\u200b", value="\u200b", inline=True)
-    embed.add_field(name="`?play <episode number>`", value="Searches GitLab for the requested episode and plays it. Join a voice channel before invoking this command.", inline=True)
+    embed.add_field(name="`?play <episode number>`", value="Searches GitLab for the requested episode and plays it. Plays Ep. 1 by default. Join a voice channel before invoking this command.", inline=True)
     embed.add_field(name="aliases", value="`?p`", inline=True)
     embed.add_field(name="\u200b", value="\u200b", inline=True)
     embed.add_field(name="`?pause`", value="Pauses the currently playing episode.", inline=True)
