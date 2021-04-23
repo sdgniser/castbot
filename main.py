@@ -4,7 +4,7 @@ import requests
 
 from discord.ext import commands
 
-from cast_utils import get_info, get_links, rcol
+from cast_utils import get_info, get_links, rcol, ses
 from keep_alive import keep_alive
 
 # Tracks the currently playing episode
@@ -102,7 +102,7 @@ async def play_(ctx, *, podcast=1):
     await ctx.trigger_typing()
 
     # Checking, if file exists on GitLab
-    resp = requests.get(source).status_code
+    resp = ses.get(source).status_code
 
     if resp != 200:
         return await ctx.send(
