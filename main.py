@@ -7,7 +7,6 @@ from discord.ext import commands
 from cast_utils import get_info, get_links, rcol
 from keep_alive import keep_alive
 
-
 # Tracks the currently playing episode
 CURRENT = None
 
@@ -24,7 +23,9 @@ async def on_ready():
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, discord.ext.commands.errors.CommandNotFound):
-        await ctx.send("_I do not understand that command! Try `?help` to get a list of commands._", delete_after=120)
+        await ctx.send(
+            "_I do not understand that command! Try `?help` to get a list of commands._",
+            delete_after=120)
 
     if isinstance(error, commands.MissingPermissions):
         await ctx.send("`You are not an admin!`", delete_after=120)
@@ -47,9 +48,9 @@ async def announce_(ctx):
         promo_url = rf"https://gitlab.com/nisercast/nisercast.gitlab.io/-/raw/master/assets/episodes/posters/{str(pod_num - 1).zfill(3)}.png"
         embed = discord.Embed(
             title=pod_title,
-            description=f"_Publication Timestamp: {pod_published}_\n\n{pod_shortdesc}\n\n\u200b",
-            colour=discord.Color.from_rgb(*rcol())
-        )
+            description=
+            f"_Publication Timestamp: {pod_published}_\n\n{pod_shortdesc}\n\n\u200b",
+            colour=discord.Color.from_rgb(*rcol()))
 
         links = get_links()
         links_final = [
@@ -61,14 +62,19 @@ async def announce_(ctx):
 
         embed.set_image(url=promo_url)
 
-        embed.add_field(name="Podcast Links:", value=f"{''.join(x for x in links_final)}", inline=False)
+        embed.add_field(name="Podcast Links:",
+                        value=f"{''.join(x for x in links_final)}",
+                        inline=False)
         embed.add_field(name="\u200b", value="\u200b", inline=False)
 
-        embed.set_footer(text="Custom Podcast Bot for NiSERCast Discord Server | Fork me on GitHub (https://github.com/sdgniser/castbot)", icon_url="attachment://castbot.png")
+        embed.set_footer(
+            text=
+            "Custom Podcast Bot for NiSERCast Discord Server | Fork me on GitHub (https://github.com/sdgniser/castbot)",
+            icon_url="attachment://castbot.png")
 
         await ctx.channel.send(content="@everyone", file=file, embed=embed)
         await ctx.message.delete()
-    
+
     else:
         return await ctx.channel.send("`Podcast not found!`", delete_after=120)
 
@@ -87,7 +93,9 @@ async def play_(ctx, *, podcast=1):
 
     # Discord limiation: cannot typecheck here
     if podcast == CURRENT:
-        return await ctx.send(f"`Episode {podcast} is already being played! Try ?r to resume an episode.`", delete_after=60)
+        return await ctx.send(
+            f"`Episode {podcast} is already being played! Try ?r to resume an episode.`",
+            delete_after=60)
 
     source = rf"https://gitlab.com/nisercast/nisercast.gitlab.io/-/raw/master/assets/episodes/{str(podcast).zfill(3)}.mp3"
 
@@ -97,10 +105,11 @@ async def play_(ctx, *, podcast=1):
     resp = requests.get(source).status_code
 
     if resp != 200:
-        return await ctx.send(f"`Episode {podcast} either does not exist or GitLab is experiencing issues at this time!`", delete_after=120)
+        return await ctx.send(
+            f"`Episode {podcast} either does not exist or GitLab is experiencing issues at this time!`",
+            delete_after=120)
 
     author = ctx.author
-
 
     if hasattr(author, "voice") and author.voice and author.voice.channel:
         voice_channel = author.voice.channel
@@ -114,10 +123,14 @@ async def play_(ctx, *, podcast=1):
         voice.play(discord.FFmpegPCMAudio(source=source))
         voice.is_playing()
         CURRENT = podcast
-        await ctx.send(f"`Now playing NiSERCast Episode {podcast} requested by {author}`")
+        await ctx.send(
+            f"`Now playing NiSERCast Episode {podcast} requested by {author}`")
 
     else:
-        await ctx.channel.send(content="_You are not connected to a voice channel. Please join a voice channel before invoking this command._")
+        await ctx.channel.send(
+            content=
+            "_You are not connected to a voice channel. Please join a voice channel before invoking this command._"
+        )
 
 
 @bot.command(name="pause", aliases=['//', 'pp'])
@@ -129,7 +142,8 @@ async def pause_(ctx):
     vc = ctx.voice_client
 
     if not vc or not vc.is_playing():
-        return await ctx.send('_I am currently not playing anything!_', delete_after=60)
+        return await ctx.send('_I am currently not playing anything!_',
+                              delete_after=60)
 
     elif vc.is_paused():
         return
@@ -147,7 +161,8 @@ async def resume_(ctx):
     vc = ctx.voice_client
 
     if not vc or not vc.is_connected():
-        return await ctx.send('_I am currently not playing anything!_', delete_after=60)
+        return await ctx.send('_I am currently not playing anything!_',
+                              delete_after=60)
 
     elif not vc.is_paused():
         return
@@ -165,7 +180,8 @@ async def stop_(ctx):
     vc = ctx.voice_client
 
     if not vc or not vc.is_connected():
-        return await ctx.send("_I am currently not playing anything!_", delete_after=60)
+        return await ctx.send("_I am currently not playing anything!_",
+                              delete_after=60)
 
     try:
         await vc.disconnect()
@@ -188,18 +204,23 @@ async def info_(ctx):
         file = discord.File("./castbot.png")
         embed = discord.Embed(
             title=pod_title,
-            description=f"_Publication Timestamp: {pod_published}_\n\n{pod_shortdesc}",
+            description=
+            f"_Publication Timestamp: {pod_published}_\n\n{pod_shortdesc}",
             colour=discord.Colour.gold(),
         )
 
         embed.add_field(name="\u200b", value="\u200b", inline=False)
 
-        embed.set_footer(text="Custom Podcast Bot for NiSERCast Discord Server | Fork me on GitHub (https://github.com/sdgniser/castbot)", icon_url="attachment://castbot.png")
+        embed.set_footer(
+            text=
+            "Custom Podcast Bot for NiSERCast Discord Server | Fork me on GitHub (https://github.com/sdgniser/castbot)",
+            icon_url="attachment://castbot.png")
 
         await ctx.channel.send(content=None, file=file, embed=embed)
 
     else:
-        await ctx.channel.send("_I am currently not playing anything!_", delete_after=60)
+        await ctx.channel.send("_I am currently not playing anything!_",
+                               delete_after=60)
 
 
 @bot.command(name="help", help="Shows help message and list of commands")
@@ -211,38 +232,60 @@ async def help_(ctx):
     file = discord.File("./castbot.png")
     embed = discord.Embed(
         title="List of commands for CastBot",
-        description="CastBot announces new NiSERCast episodes and allows server members to play episodes within this server.\n\n**Bot Pefix**: `?`\n\n**List of Commands:**",
+        description=
+        "CastBot announces new NiSERCast episodes and allows server members to play episodes within this server.\n\n**Bot Pefix**: `?`\n\n**List of Commands:**",
         colour=discord.Colour.teal(),
     )
 
-    embed.add_field(name="`?announce`", value="[**Admin only**] Puts a new episode announcement message in the current channel.", inline=True)
+    embed.add_field(
+        name="`?announce`",
+        value=
+        "[**Admin only**] Puts a new episode announcement message in the current channel.",
+        inline=True)
     embed.add_field(name="aliases", value="`?a`, `?<`", inline=True)
     embed.add_field(name="\u200b", value="\u200b", inline=True)
-    embed.add_field(name="`?play <episode number>`", value="Searches GitLab for the requested episode and plays it. Plays Ep. 1 by default. Join a voice channel before invoking this command.", inline=True)
+    embed.add_field(
+        name="`?play <episode number>`",
+        value=
+        "Searches GitLab for the requested episode and plays it. Plays Ep. 1 by default. Join a voice channel before invoking this command.",
+        inline=True)
     embed.add_field(name="aliases", value="`?p`", inline=True)
     embed.add_field(name="\u200b", value="\u200b", inline=True)
-    embed.add_field(name="`?pause`", value="Pauses the currently playing episode.", inline=True)
+    embed.add_field(name="`?pause`",
+                    value="Pauses the currently playing episode.",
+                    inline=True)
     embed.add_field(name="aliases", value="`?pp`, `?//`", inline=True)
     embed.add_field(name="\u200b", value="\u200b", inline=True)
-    embed.add_field(name="`?resume`", value="Resumes the currently paused episode.", inline=True)
+    embed.add_field(name="`?resume`",
+                    value="Resumes the currently paused episode.",
+                    inline=True)
     embed.add_field(name="aliases", value="`?r`", inline=True)
     embed.add_field(name="\u200b", value="\u200b", inline=True)
-    embed.add_field(name="`?stop`", value="Stops the currently playing episode and leaves the voice channel.", inline=True)
+    embed.add_field(
+        name="`?stop`",
+        value=
+        "Stops the currently playing episode and leaves the voice channel.",
+        inline=True)
     embed.add_field(name="aliases", value="`?s`, `?dc`", inline=True)
     embed.add_field(name="\u200b", value="\u200b", inline=True)
-    embed.add_field(name="`?info`", value="Displays information about the currently playing episode.", inline=True)
+    embed.add_field(
+        name="`?info`",
+        value="Displays information about the currently playing episode.",
+        inline=True)
     embed.add_field(name="aliases", value="`?i`, `?np`", inline=True)
     embed.add_field(name="\u200b", value="\u200b", inline=True)
     embed.add_field(name="\u200b", value="\u200b", inline=False)
 
-    embed.set_footer(text="Custom Podcast Bot for NiSERCast Discord Server | Fork me on GitHub (https://github.com/sdgniser/castbot)", icon_url="attachment://castbot.png")
+    embed.set_footer(
+        text=
+        "Custom Podcast Bot for NiSERCast Discord Server | Fork me on GitHub (https://github.com/sdgniser/castbot)",
+        icon_url="attachment://castbot.png")
 
     await ctx.channel.send(content=None, file=file, embed=embed)
 
 
 # Start-up and keep-alive
 TOKEN = os.getenv("TOKEN")
-
 
 keep_alive()
 bot.run(TOKEN)
