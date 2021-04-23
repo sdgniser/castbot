@@ -55,7 +55,7 @@ async def announce_(ctx):
         links_final = [
             f"[Google Podcast]({links[0]})\n",
             f"[Spotify Podcast]({links[1]})\n",
-            "Also available on **Apple Podcast** (Search the app)\n\n",
+            f"[Apple Podcast]({links[2]})\n\n",
             "_You can also listen to episodes via this bot. Type `?help` to learn more._"
         ]
 
